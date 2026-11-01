@@ -26,18 +26,25 @@ jobs:
         with:
           gradle-version: '8.10'
 
-      # ÉP HỆ THỐNG TẢI THƯ VIỆN MINECRAFT VÀ ÁNH XẠ MAPPING TRƯỚC
-      - name: Pre-download Minecraft Assets and Setup Loom
-        run: gradle downloadAssets setupLoom --no-daemon
-        env:
-          GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.parallel=true -Dorg.gradle.welcome=never"
+      # SỬA LỖI WEB UPLOAD: Di chuyển file vào đúng thư mục gradle/wrapper/
+      - name: Fix Web Upload Structure
+        run: |
+          mkdir -p gradle/wrapper
+          if [ -f gradle-wrapper.properties ]; then
+            mv gradle-wrapper.properties gradle/wrapper/
+          fi
+          if [ -f gradle-wrapper.jar ]; then
+            mv gradle-wrapper.jar gradle/wrapper/
+          fi
+          chmod +x gradlew
 
-      # TIẾN HÀNH BUILD FILE JAR ĐÍCH CHUẨN HOÁ
+      # LỆNH ĐÓNG GÓI CHUẨN CỦA FABRIC LOOM (Tự động quét tài nguyên và re-map)
       - name: Build Mod JAR
         run: gradle build -x test --stacktrace --no-daemon
         env:
           GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.parallel=true -Dorg.gradle.welcome=never"
 
+      # ĐẨY FILE MOD ĐÃ BUILD LÊN MỤC ARTIFACT
       - name: Upload Mod Artifact
         uses: actions/upload-artifact@v4
         with:
