@@ -1,0 +1,3 @@
+git add .github/workflows/build.yml
+git commit -m "Add GitHub Actions workflow to build mod"
+git push origin main
