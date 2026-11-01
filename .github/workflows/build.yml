@@ -1,3 +1,39 @@
-git add .github/workflows/build.yml
-git commit -m "Add GitHub Actions workflow to build mod"
-git push origin main
+name: Build Fabric Example Mod
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Thêm các cờ tối ưu hóa bộ nhớ và bỏ qua build các file phụ không cần thiết
+      - name: Build Mod JAR
+        run: ./gradlew build -x test --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.parallel=true"
+
+      - name: Upload Mod Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fabric-Mod-Output
+          path: build/libs/
