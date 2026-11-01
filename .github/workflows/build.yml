@@ -20,21 +20,28 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      # BƯỚC ĐẶC BIỆT: Di chuyển các file wrapper nằm sai chỗ vào đúng thư mục gradle/wrapper/
+      # SỬA LỖI WEB UPLOAD: Di chuyển file vào đúng thư mục gradle/wrapper/ và xóa file thừa ở gốc
       - name: Fix Web Upload Structure
-        run: |
-          mkdir -p gradle/wrapper
-          [ -f gradle-wrapper.jar ] && mv gradle-wrapper.jar gradle/wrapper/
-          [ -f gradle-wrapper.properties ] && mv gradle-wrapper.properties gradle/wrapper/
+         mkdir -p gradle/wrapper
+          if [ -f gradle-wrapper.properties ]; then
+            mv gradle-wrapper.properties gradle/wrapper/
+          fi
+          if [ -f gradle-wrapper.jar ]; then
+            mv gradle-wrapper.jar gradle/wrapper/
+          fi
           chmod +x gradlew
 
+      # THIẾT LẬP GRADLE VÀ TỰ ĐỘNG CẬP NHẬT WRAPPER CHUẨN LÊN BẢN MỚI NHẤT
+      - name: Setup and Update Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+
+      # CHẠY LỆNH BUILD VỚI THIẾT LẬP KHÔNG BỊ TREO LOG
       - name: Build Mod JAR
-        run: ./gradlew build -x test --no-daemon --stacktrace
+        run: ./gradlew build -x test --stacktrace --no-daemon
         env:
-          GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.parallel=true"
+          GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.parallel=true -Dorg.gradle.welcome=never"
 
       - name: Upload Mod Artifact
         uses: actions/upload-artifact@v4
