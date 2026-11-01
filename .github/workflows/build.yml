@@ -14,13 +14,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Nâng cấp lên v5 để tương thích hoàn toàn với hệ thống Ubuntu mới của GitHub
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # SỬA LỖI WEB UPLOAD: Di chuyển file vào đúng thư mục gradle/wrapper/ và xóa file thừa ở gốc
+      # SỬA LỖI WEB UPLOAD: Di chuyển file vào đúng thư mục gradle/wrapper/
       - name: Fix Web Upload Structure
         run: |
           mkdir -p gradle/wrapper
@@ -32,13 +33,13 @@ jobs:
           fi
           chmod +x gradlew
 
-      # THIẾT LẬP GRADLE VÀ TỰ ĐỘNG CẬP NHẬT WRAPPER CHUẨN LÊN BẢN MỚI NHẤT
+      # THIẾT LẬP GRADLE VÀ ÉP DÙNG PHIÊN BẢN 8.10 (Bản siêu ổn định với Fabric Loom 1.7)
       - name: Setup and Update Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: wrapper
+          gradle-version: '8.10'
 
-      # CHẠY LỆNH BUILD VỚI THIẾT LẬP KHÔNG BỊ TREO LOG
+      # CHẠY LỆNH BUILD VỚI CỜ BỎ QUA KIỂM TRA ĐỘC LẬP
       - name: Build Mod JAR
         run: ./gradlew build -x test --stacktrace --no-daemon
         env:
@@ -49,3 +50,4 @@ jobs:
         with:
           name: Fabric-Mod-Output
           path: build/libs/
+
