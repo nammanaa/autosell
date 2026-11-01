@@ -22,7 +22,8 @@ jobs:
 
       # SỬA LỖI WEB UPLOAD: Di chuyển file vào đúng thư mục gradle/wrapper/ và xóa file thừa ở gốc
       - name: Fix Web Upload Structure
-         mkdir -p gradle/wrapper
+        run: |
+          mkdir -p gradle/wrapper
           if [ -f gradle-wrapper.properties ]; then
             mv gradle-wrapper.properties gradle/wrapper/
           fi
